@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+docker build -t "steelhead-socks-proxy" docker
+docker run -it --rm --cap-drop=ALL -v "$PWD:/app" -v "$PWD/docker:/app/docker:ro" --name running-steelhead-socks-proxy "steelhead-socks-proxy"
