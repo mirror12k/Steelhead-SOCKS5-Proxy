@@ -90,7 +90,7 @@ class ParsedHTTPResponse:
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
+    daemon_threads = True
 
 class BaseSOCKSRequestHandler(socketserver.BaseRequestHandler):
     def __init__(self, request, client_address, server, router: DomainConnectionRouter = None):

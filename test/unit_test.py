@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-
-# Unit Test Code
 import threading
 import unittest
 import requests
@@ -261,7 +259,7 @@ class TestChunkedTransferEncoding(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Start the mock server in a separate thread
-        cls.mock_server_port = random.randint(7900, 8000)
+        cls.mock_server_port = random.randint(9900, 10000)
         cls.mock_server = socketserver.TCPServer(('localhost', cls.mock_server_port), ChunkedHTTPHandler)
         cls.mock_server_thread = threading.Thread(target=cls.mock_server.serve_forever)
         cls.mock_server_thread.daemon = True
@@ -288,12 +286,12 @@ class TestChunkedTransferEncoding(unittest.TestCase):
 
     def test_chunked_transfer_encoding(self):
         proxy = {'http': f'socks5://localhost:{TestChunkedTransferEncoding.proxy_port}'}
-        response = requests.get(f'http://localhost:{TestChunkedTransferEncoding.mock_server_port}', proxies=proxy)
+        response = requests.get(f'http://127.0.0.1:{TestChunkedTransferEncoding.mock_server_port}', proxies=proxy)
         self.assertEqual(response.text, 'Wikipedia')
 
     def test_random_chunked_transfer_encoding(self):
         proxy = {'http': f'socks5://localhost:{TestChunkedTransferEncoding.proxy_port}'}
-        response = requests.get(f'http://localhost:{TestChunkedTransferEncoding.mock_server_port}/random-chunked', proxies=proxy)
+        response = requests.get(f'http://127.0.0.1:{TestChunkedTransferEncoding.mock_server_port}/random-chunked', proxies=proxy)
         
         # Assertions to verify the response
         self.assertEqual(response.status_code, 200)
@@ -469,7 +467,7 @@ class TestSpecialResponses(unittest.TestCase):
 
     def test_no_body_no_content_length(self):
         """Test connection to a server with no body and no content-length or transfer-encoding"""
-        response = requests.get(f'http://localhost:{self.mock_server_port}', proxies=TestSpecialResponses.proxy_config, verify=False)
+        response = requests.get(f'http://127.0.0.1:{self.mock_server_port}', proxies=TestSpecialResponses.proxy_config, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.text, '')
         self.assertNotIn('Content-Length', response.headers)
@@ -477,7 +475,7 @@ class TestSpecialResponses(unittest.TestCase):
 
     def test_wait(self):
         """Test connection to a server with no body and no content-length or transfer-encoding"""
-        response = requests.get(f'http://localhost:{self.mock_server_port}/wait', proxies=TestSpecialResponses.proxy_config, verify=False)
+        response = requests.get(f'http://127.0.0.1:{self.mock_server_port}/wait', proxies=TestSpecialResponses.proxy_config, verify=False)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.text, '')
         self.assertNotIn('Content-Length', response.headers)
@@ -486,7 +484,7 @@ class TestSpecialResponses(unittest.TestCase):
     def test_server_closes_connection(self):
         """Test behavior when the server closes the connection before responding"""
         with self.assertRaises(requests.exceptions.ConnectionError):
-            requests.get(f'http://localhost:{self.mock_server_port}/close-immediately', verify=False)
+            requests.get(f'http://127.0.0.1:{self.mock_server_port}/close-immediately', verify=False)
 
 
 
@@ -511,8 +509,8 @@ class TestRequestRouting(unittest.TestCase):
 
         # Set up the DomainConnectionRouter with the redirection rule
         cls.router = DomainConnectionRouter()
-        cls.router.add_route('server.internal', f'http://localhost:{cls.local_server_port}')
-        cls.router.add_route('www.google.com', f'http://localhost:{cls.local_server_port}')
+        cls.router.add_route('server.internal', f'http://127.0.0.1:{cls.local_server_port}')
+        cls.router.add_route('www.google.com', f'http://127.0.0.1:{cls.local_server_port}')
 
         # Start the proxy server with the routed request handler
         cls.proxy_port = random.randint(8600, 8700)
